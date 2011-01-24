@@ -1,3 +1,4 @@
+import os
 import sys
 import logging
 import shutil
@@ -22,9 +23,18 @@ class FSpotController(object):
         self.backup = kwargs.get('backup', True)
         self.dbpath = kwargs.get('dbpath', DEFAULT_DB_FILE)
         
-        engine = create_engine('sqlite:///%s' % self.dbpath)
-        metadata.bind = engine
-        session.configure(bind=engine)
+        engine = kwargs.get('engine')
+        if not engine:
+            engine = create_engine('sqlite:///%s' % self.dbpath)
+            metadata.bind = engine
+            session.configure(bind=engine)
+
+    def __init_action(self, photoset=None, modify=False):
+        if modify:
+            self.create_backup()
+        if not photoset:
+            photoset = session.query(Photo).all()
+        return photoset
 
     def create_backup(self):
         if self.backup:
@@ -42,9 +52,12 @@ class FSpotController(object):
         return tag.photos
 
     def find_by_path(self, path):
-        return session.query(Photo).filter(Photo.uri.like("%%%s%%" % path))
+        return session.query(Photo).filter(Photo.uri.like("%%%s%%" % path)).all()
     
     def find_missing_on_disk(self):
+        raise NotImplementedError
+
+    def find_missing_in_catalog(self):
         raise NotImplementedError
 
     def find_corrupted(self):
@@ -62,8 +75,14 @@ class FSpotController(object):
     def apply_tag(self):
         raise NotImplementedError
 
-    def change_rating(self):
-        raise NotImplementedError
+    def change_rating(self, rating, safe=True, photoset=None):
+        photoset = self.__init_action(photoset=photoset, modify=True)
+        for p in photoset:
+            if safe and rating < p.rating:
+                continue
+            p.rating = rating
+        logger.info(_("Set rating %s to %s photos.") % (rating, len(photoset)))
+        session.commit()
 
     def remove(self):
         raise NotImplementedError
