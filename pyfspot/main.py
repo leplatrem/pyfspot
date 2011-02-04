@@ -18,18 +18,26 @@ def main(args):
     parser.add_option("--database",
                       dest="database", default=None,
                       help=_("Path to F-Spot database"))
+    parser.add_option("--log-level",
+                      dest="log_level", default=logging.INFO, type='int',
+                      help=_("Logging level for messages (1:debug 2:info, 3:warning, 4:errors, 5:critical)"))
+    # Find
     parser.add_option("--find-path",
                       dest="find_path", default=None,
                       help=_("Find by path"))
     parser.add_option("--find-tag",
                       dest="find_tag", default=None,
                       help=_("Find by tag"))
+    # Actions
     parser.add_option("--list",
                       dest="list", default=False, action="store_true",
                       help=_("List photos matching set"))
-    parser.add_option("--log-level",
-                      dest="log_level", default=logging.INFO, type='int',
-                      help=_("Logging level for messages (1:debug 2:info, 3:warning, 4:errors, 5:critical)"))
+    parser.add_option("--rating",
+                      dest="rating", default=None, type='int',
+                      help=_("Change rating"))
+    parser.add_option("--safe-rating",
+                      dest="safe_rating", default=False, action="store_true",
+                      help=_("Change rating only if superior to current"))
     (options, args) = parser.parse_args(args)
     
     logging.basicConfig(level = options.log_level)
@@ -42,6 +50,9 @@ def main(args):
         fm.photoset = fm.find_by_path(options.find_path)
     if options.find_tag:
         fm.photoset = fm.find_by_tag(options.find_tag)
+
+    if options.rating:
+        fm.change_rating(options.rating, options.safe_rating)
 
     # List photoset in stdout
     if options.list:

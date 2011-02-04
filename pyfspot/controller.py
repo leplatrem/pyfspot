@@ -55,7 +55,6 @@ class FSpotController(object):
             session.configure(bind=engine)
 
         self._photoset = None
-        self._normalize = False
 
     @property
     def photoset(self):
@@ -91,7 +90,6 @@ class FSpotController(object):
             t = session.query(Tag).filter(Tag.name.like(tag)).first()
         if not t:
             raise NotFoundError(Tag, tag)
-        #return t.photos.intersect(self.photoset)
         return self.photoset.filter(Photo.tags.any(id=t.id))
 
     @normalize()
@@ -100,7 +98,7 @@ class FSpotController(object):
         return self.photoset.filter(Photo.uri.like(condition))
 
     @backupdb()
-    def change_rating(self, rating, safe=True):
+    def change_rating(self, rating, safe=False):
         total = 0
         for p in self.photoset:
             if safe and rating < p.rating:
