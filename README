@@ -1,0 +1,78 @@
+https://github.com/leplatrem/pyfspot
+
+pyfspot is a python application which allows you to perform and script
+operations on your F-Spot (http://f-spot.org) photo collection.
+
+The command-line application allows you to query and modify 
+photos attributes (like ratings and tags).
+But you can build your own script using pyfspot modules
+
+
+=======
+INSTALL
+=======
+
+pyfspot requires:
+* sqlalchemy
+* pexif
+* fixtures (optional)
+
+System-wide installation
+------------------------
+$ sudo python setup.py install
+
+
+Virtualenv installation
+-----------------------
+$ virtualenv env
+$ cd env
+$ source bin/activate
+$ python setup.py install
+
+
+=====
+USAGE
+=====
+
+  f-spot-admin [options]
+
+    Options:
+    -h, --help             show this help message and exit
+    --database=DATABASE    Path to F-Spot database
+    --find-path=FIND_PATH  Find by path
+    --find-tag=FIND_TAG    Find by tag
+    --list                 List photos matching set
+    --log-level=LOG_LEVEL  Logging level for messages (1:debug 2:info, 3:warning,
+                           4:errors, 5:critical)
+
+Examples
+--------
+List all photos of database:
+  f-spot-admin --list
+
+Find all photos on a specific partition:
+  f-spot-admin --find-path="/media/ext-disk/*" --list
+
+Find all photos with tag "family" with "canon" in file paths:  
+  f-spot-admin --find-tag="family" --find-path="*canon*" --list
+
+
+=======
+AUTHORS
+=======
+
+    * Mathieu Leplatre <contact@mathieu-leplatre.info>
+
+=======
+LICENSE
+=======
+
+    * Lesser GNU Public License
+
+=========
+CHANGELOG
+=========
+
+0.1
+---
+* Initial version. Basic wiring of code and logics. Does basic path and tag search.

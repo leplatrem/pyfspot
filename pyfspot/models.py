@@ -56,7 +56,7 @@ class Photo(DeclarativeBase):
     filename = Column(String)
     description = Column(Text)
     rating = Column(Integer)
-    uri = column_property(base_uri + os.sep + filename)
+    uri = column_property(base_uri + filename)
     tags = relationship('Tag', secondary=phototags)
     
     roll_id = Column('roll_id', Integer, ForeignKey('rolls.id'))
