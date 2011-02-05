@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 # Force UTF-8 encoding of stdout
 sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.stdout)
 
-def main(args):
+def main(args=None):
     # Parse command-line arguments
     parser = OptionParser()
     parser.add_option("--database",
