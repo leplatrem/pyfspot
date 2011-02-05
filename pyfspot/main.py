@@ -58,6 +58,10 @@ def main(args=None):
     if options.list:
         for p in fm.photoset:
             print p.path
+
+    if not any([options.list, 
+                options.rating]):
+        logger.warning(_("No action was specified."))
     return 0
 
 if __name__ == "__main__":
