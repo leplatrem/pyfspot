@@ -7,7 +7,7 @@ readme = f.read()
 f.close()
 
 setup(name       = 'pyfspot',
-    version      = '0.1',
+    version      = '0.2',
     license      = 'LGPL',
     description  = 'Perform operations on your F-Spot database.',
     author       = "Mathieu Leplatre",
