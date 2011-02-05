@@ -9,8 +9,6 @@ from controller import FSpotController
 
 logger = logging.getLogger(__name__)
 
-# Force UTF-8 encoding of stdout
-sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.stdout)
 
 def main(args=None):
     # Parse command-line arguments
@@ -47,15 +45,21 @@ def main(args=None):
 
     # Chain find queries
     if options.find_path:
-        fm.photoset = fm.find_by_path(options.find_path)
+        path = unicode(options.find_path, 'utf8')
+        fm.photoset = fm.find_by_path(path)
     if options.find_tag:
-        fm.photoset = fm.find_by_tag(options.find_tag)
+        tagname = unicode(options.find_tag, 'utf8')
+        fm.photoset = fm.find_by_tag(tagname)
 
     if options.rating:
         fm.change_rating(options.rating, options.safe_rating)
 
     # List photoset in stdout
     if options.list:
+        # Force UTF-8 encoding of stdout
+        #sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.stdout)
+        logger.debug(_("Default locale: %s") % locale.getdefaultlocale()[1])
+        logger.debug(_("Terminal encoding (stdout): %s") % sys.stdout.encoding)
         for p in fm.photoset:
             print p.path
 
