@@ -3,6 +3,7 @@ import sys
 import logging
 import shutil
 import time
+import urllib
 from gettext import gettext as _
 
 from models import create_engine, metadata, session, Photo, Tag
@@ -82,7 +83,22 @@ class FSpotController(object):
                 for p in queryset:
                     p.base_uri += os.sep
                 session.commit()
-                logger.info(_("Normalized path on %s photos.") % len(queryset))
+                logger.info(_("Normalized path separator on %s photos.") % len(queryset))
+            
+            total = 0
+            # Look for photo without '%' in their path (i.e. not encoded)
+            queryset = self.photoset.filter(~Photo.base_uri.like('%\\%%', escape="\\")).all()
+            if len(queryset):
+                self.create_backup()
+                for p in queryset:
+                    # Compare encoded version of base_uri to actual version
+                    # (slice file:// part)
+                    base_uri_encoded = urllib.quote(p.base_uri[7:].encode('utf-8'))
+                    if base_uri_encoded != p.base_uri[7:]:
+                        p.base_uri = p.base_uri[:7] + base_uri_encoded
+                        total += 1
+                session.commit()
+                logger.info(_("Normalized path encoding on %s photos.") % total)
             self.normalize = False
 
     def find_by_tag(self, tag):
@@ -94,8 +110,12 @@ class FSpotController(object):
 
     @normalize()
     def find_by_path(self, path):
-        condition = path.replace('*', '%%')
-        return self.photoset.filter(Photo.uri.like(condition))
+        condition = urllib.quote(path)
+        condition = condition.replace('%', "\\%")  # encoding char is not wildchar
+        condition = condition.replace('_', "\\_")  # underscore neither
+        condition = condition.replace("\\%2A", '%')  # Replace * by %
+        condition = condition.replace("\\%3F", '_')  # Replace ? by _
+        return self.photoset.filter(Photo.uri.like(condition, escape="\\"))
 
     @backupdb()
     def change_rating(self, rating, safe=False):

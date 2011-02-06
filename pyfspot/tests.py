@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 import os
 import unittest
 
@@ -8,7 +9,8 @@ from controller import FSpotController
 
 
 # Setup temporary database
-engine = create_engine('sqlite:///:memory')
+DB_PATH = ':memory:'
+engine = create_engine('sqlite:///' + DB_PATH)
 metadata.bind = engine
 session.configure(bind=engine)
 metadata.create_all()
@@ -25,6 +27,15 @@ class PhotoData(DataSet):
     class on_disk:
         base_uri = os.path.join('file://', BASE_PATH, 'tests')
         filename = 'bee.jpg'
+    class encoded:
+        base_uri = os.path.join('file://', u'éΩƂ', 'spa ce')
+        filename = 'file1.jpg'
+    class normalized:
+        base_uri = os.path.join('file://', '%C3%A9%CE%A9%C6%82', 'spa%20ce')
+        filename = 'file2.jpg'
+    class file_encoded:
+        base_uri = os.path.join('file://', 'Photos', '2011')
+        filename = u"file3 éè with spaces.jpg"
 
 """
 Actual tests
@@ -55,11 +66,39 @@ class TestController(DataTestCase, unittest.TestCase):
 
     def setUp(self):
         super(TestController, self).setUp()
-        self.fm = FSpotController(engine=engine)
+        self.fm = FSpotController(dbpath=DB_PATH, 
+                                  engine=engine,
+                                  backup=False)
+
+    def test_normalize(self):
+        pass
 
     def test_find_by_path(self):
-        p = self.fm.find_by_path("tests")
+        self.fm.normalize = False
+        p = self.fm.find_by_path("tests").all()
+        self.assertFalse(len(p) > 0)
+        p = self.fm.find_by_path("*tests*").all()
         self.assertTrue(len(p) > 0)
+        p = self.fm.find_by_path(BASE_PATH+'*').all()
+        self.assertTrue(len(p) > 0)
+        p = self.fm.find_by_path('*tests/bee*').all()
+        self.assertFalse(len(p) > 0)
+        p = self.fm.find_by_path('file*').all()
+        self.assertEqual(len(p), 3)
+        p = self.fm.find_by_path('*file?.jpg').all()
+        self.assertEqual(len(p), 2)
+        p = self.fm.find_by_path('*spa ce*').all()
+        self.assertEqual(len(p), 1)
+        p = self.fm.find_by_path(u'*Ω*'.encode('utf-8')).all()
+        self.assertEqual(len(p), 1)
+        # Now normalize the paths
+        self.fm.normalize = True
+        p = self.fm.find_by_path('*tests/bee*').all()
+        self.assertTrue(len(p) > 0)
+        p = self.fm.find_by_path('*spa ce*').all()
+        self.assertEqual(len(p), 2)
+        p = self.fm.find_by_path(u'*Ω*'.encode('utf-8')).all()
+        self.assertEqual(len(p), 2)
 
     def test_change_rating(self):
         p = session.query(Photo).filter_by(filename='bee.jpg').one()
@@ -68,7 +107,7 @@ class TestController(DataTestCase, unittest.TestCase):
         self.fm.change_rating(1)
         self.assertEqual(1, p.rating)
         # Safe
-        self.fm.change_rating(0)
+        self.fm.change_rating(0, safe=True)
         self.assertEqual(1, p.rating)
         # Not safe
         self.fm.change_rating(0, safe=False)
