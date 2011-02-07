@@ -82,8 +82,8 @@ def main(args=None):
         for p in fm.photoset:
             print p.path
 
-    if not any([options.list, 
-                options.rating.
+    if not any([options.list,
+                options.rating,
                 options.tag,
                 options.untag]):
         logger.warning(_("No action was specified."))

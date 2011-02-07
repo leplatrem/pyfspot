@@ -126,6 +126,25 @@ class FSpotController(object):
         missing = [p.id for p in self.photoset if not p.exists()]
         return self.photoset.filter(Photo.id.in_(missing))
 
+    @backupdb()
+    def apply_tag(self, tagname):
+        total = 0
+        for p in self.photoset:
+            p.add_tag(tagname)
+            total += 1
+        logger.info(_("Added tag '%s' on %s photos.") % (tagname, total))
+
+    @backupdb()
+    def remove_tag(self, tagname):
+        total = 0
+        for p in self.photoset:
+            try:
+                p.remove_tag(tagname)
+                total += 1
+            except Exception, e:
+                logger.error(e)
+        logger.info(_("Removed tag '%s' of %s photos.") % (tagname, total))
+
     def find_missing_in_catalog(self):
         raise NotImplementedError
 
@@ -139,9 +158,6 @@ class FSpotController(object):
         raise NotImplementedError
 
     def change_path(self, old, new):
-        raise NotImplementedError
-
-    def apply_tag(self):
         raise NotImplementedError
 
     def remove(self):
