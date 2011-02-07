@@ -113,6 +113,10 @@ class TestController(DataTestCase, unittest.TestCase):
         self.fm.change_rating(0, safe=False)
         self.assertEqual(0, p.rating)
 
+    def test_find_missing_on_disk(self):
+        n = self.fm.photoset.count()
+        p = self.fm.find_missing_on_disk().all()
+        self.assertEqual(len(p), n - 1)
 
 if __name__ == '__main__':
     unittest.main()

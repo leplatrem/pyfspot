@@ -26,6 +26,9 @@ def main(args=None):
     parser.add_option("--find-tag",
                       dest="find_tag", default=None,
                       help=_("Find by tag"))
+    parser.add_option("--find-missing",
+                      dest="find_missing", default=False, action="store_true",
+                      help=_("Find photos missing on disk"))
     # Actions
     parser.add_option("--list",
                       dest="list", default=False, action="store_true",
@@ -50,6 +53,8 @@ def main(args=None):
     if options.find_tag:
         tagname = unicode(options.find_tag, 'utf8')
         fm.photoset = fm.find_by_tag(tagname)
+    if options.find_missing:
+        fm.photoset = fm.find_missing_on_disk()
 
     if options.rating:
         fm.change_rating(options.rating, options.safe_rating)

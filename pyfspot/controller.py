@@ -129,7 +129,9 @@ class FSpotController(object):
         session.commit()
 
     def find_missing_on_disk(self):
-        raise NotImplementedError
+        # Cannot use hybrid attributes yet.
+        missing = [p.id for p in self.photoset if not p.exists()]
+        return self.photoset.filter(Photo.id.in_(missing))
 
     def find_missing_in_catalog(self):
         raise NotImplementedError
