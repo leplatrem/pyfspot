@@ -92,6 +92,10 @@ LICENSE
 CHANGELOG
 =========
 
+0.3
+---
+* Fix command-line actions
+
 0.2
 ---
 * Ability to find missing photos on disk
