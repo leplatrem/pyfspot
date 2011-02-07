@@ -4,7 +4,7 @@ pyfspot is a python application which allows you to perform and script
 operations on your F-Spot (http://f-spot.org) photo collection.
 
 The command-line application allows you to query your collection (tags, paths),
-modify photos attributes (ratings), and diagnostic problems (find missing on disk etc.)
+modify photos attributes (ratings, tags), and diagnostic problems (find missing on disk etc.)
 
 But you can also build your own script using pyfspot modules.
 
