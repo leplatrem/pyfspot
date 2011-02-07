@@ -38,16 +38,25 @@ USAGE
   f-spot-admin [options]
 
     Options:
-    -h, --help             show this help message and exit
-    --database=DATABASE    Path to F-Spot database
-    --find-path=FIND_PATH  Find by path
-    --find-tag=FIND_TAG    Find by tag
-    --find-missing         Find photos missing on disk
-    --list                 List photos matching set
-    --rating=RATING        Change rating
-    --safe-rating          Change rating only if superior to current
-    --log-level=LOG_LEVEL  Logging level for messages (1:debug 2:info, 3:warning,
-                           4:errors, 5:critical)
+      -h, --help            show this help message and exit
+      --database=DATABASE   Path to F-Spot database
+      --log-level=LOG_LEVEL
+                            Logging level for messages (1:debug 2:info, 3:warning,
+                            4:errors, 5:critical)
+
+      Queries:
+        --find-path=FIND_PATH
+                            Find by path
+        --find-tag=FIND_TAG
+                            Find by tag
+        --find-missing      Find photos missing on disk
+
+      Actions:
+        --list              List photos matching set
+        --rating=RATING     Change rating
+        --safe-rating       Change rating only if superior to current
+        --tag=TAG           Apply specified tag
+        --untag=UNTAG       Remove specified tag
 
 Examples
 --------
@@ -59,6 +68,12 @@ Find all photos on a specific partition:
 
 Rate all photos with tag "family" with "canon" in file paths:  
   f-spot-admin --find-tag="family" --find-path="*canon*" --rating=2
+
+Tag and rate all photos whose path contains "selecta":
+  f-spot-admin --find-path="*selecta*" --tag="selection" --rating=1
+
+Remove tag on all photos which are missing on disk:
+  f-spot-admin --find-missing --untag="Family"
 
 
 =======

@@ -6,19 +6,12 @@ import time
 import urllib
 from gettext import gettext as _
 
-from models import create_engine, metadata, session, Photo, Tag
+from models import NotFoundError, create_engine, metadata, session, Photo, Tag
 
 
 DEFAULT_DB_FILE = os.path.join(os.path.expanduser('~'), '.config', 'f-spot', 'photos.db')
 
 logger = logging.getLogger(__name__)
-
-
-class NotFoundError(Exception):
-    def __init__(self, cls, name):
-        self.cls = cls
-        self.name = name
-        super(NotFoundError, self).__init__(self, _("Cannot find %s '%s'") % (cls.__name__, name))
 
 
 def backupdb(*args):

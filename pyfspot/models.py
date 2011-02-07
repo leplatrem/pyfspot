@@ -20,6 +20,13 @@ Session = sessionmaker()
 session = Session()
 
 
+
+class NotFoundError(Exception):
+    def __init__(self, cls, name):
+        self.cls = cls
+        self.name = name
+        super(NotFoundError, self).__init__(self, _("Cannot find %s '%s'") % (cls.__name__, name))
+
 class ExifTagError(Exception):
     """Raised when an error occurs while accessing EXIF tags"""
     pass
@@ -71,6 +78,10 @@ class Photo(DeclarativeBase):
         self.description = kwargs.get('description', u'')
         self.rating = kwargs.get('rating', 0)
 
+    @property
+    def tagnames(self):
+        return [t.name for t in self.tags]
+
     @staticmethod
     def exif(self, filepath, tagname):
         """Returns EXIF tag value for tagname"""
@@ -112,8 +123,16 @@ class Photo(DeclarativeBase):
         return unix
 
     def add_tag(self, tagname):
-        #TODO: test if already set ?
-        self.tags.append(Tag.find_or_create(tagname))
+        """Add Tag with specified name. Create it if it does not exist"""
+        if tagname.lower() not in [t.lower() for t in self.tagnames]:
+            self.tags.append(Tag.find_or_create(tagname))
+
+    def remove_tag(self, tagname):
+        """Remove Tag with specified name. Raise exception if not set."""
+        try:
+            self.tags.remove(session.query(Tag).filter_by(name=tagname).first())
+        except ValueError:
+            raise Exception(_("Tag %s was not set on %s") % (tagname, self))
 
     def is_corrupted(self):
         cmd = 'jpeginfo'
@@ -147,10 +166,10 @@ class Tag(DeclarativeBase):
         self.icon = kwargs.get('icon', '')
 
     @staticmethod
-    def find_or_create(self, tagname):
-        t = Tag.query.filter_by(name=tagname).first()
+    def find_or_create(tagname):
+        t = session.query(Tag).filter_by(name=tagname).first()
         if not t:
-            t = Tag(tagname)
+            t = Tag(name=tagname)
         return t
 
     @synonym_for('category')

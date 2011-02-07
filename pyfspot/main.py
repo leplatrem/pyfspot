@@ -2,7 +2,7 @@ import sys
 import logging
 import codecs 
 import locale 
-from optparse import OptionParser
+from optparse import OptionParser, OptionGroup
 from gettext import gettext as _
 
 from controller import FSpotController
@@ -20,25 +20,35 @@ def main(args=None):
                       dest="log_level", default=logging.INFO, type='int',
                       help=_("Logging level for messages (1:debug 2:info, 3:warning, 4:errors, 5:critical)"))
     # Find
-    parser.add_option("--find-path",
+    lookupgrp = OptionGroup(parser, _("Queries"))
+    lookupgrp.add_option("--find-path",
                       dest="find_path", default=None,
                       help=_("Find by path"))
-    parser.add_option("--find-tag",
+    lookupgrp.add_option("--find-tag",
                       dest="find_tag", default=None,
                       help=_("Find by tag"))
-    parser.add_option("--find-missing",
+    lookupgrp.add_option("--find-missing",
                       dest="find_missing", default=False, action="store_true",
                       help=_("Find photos missing on disk"))
     # Actions
-    parser.add_option("--list",
+    actionsgrp = OptionGroup(parser, _("Actions"))
+    actionsgrp.add_option("--list",
                       dest="list", default=False, action="store_true",
                       help=_("List photos matching set"))
-    parser.add_option("--rating",
+    actionsgrp.add_option("--rating",
                       dest="rating", default=None, type='int',
                       help=_("Change rating"))
-    parser.add_option("--safe-rating",
+    actionsgrp.add_option("--safe-rating",
                       dest="safe_rating", default=False, action="store_true",
                       help=_("Change rating only if superior to current"))
+    actionsgrp.add_option("--tag",
+                      dest="tag", default=None,
+                      help=_("Apply specified tag"))
+    actionsgrp.add_option("--untag",
+                      dest="untag", default=None,
+                      help=_("Remove specified tag"))
+    parser.add_option_group(lookupgrp)
+    parser.add_option_group(actionsgrp)
     (options, args) = parser.parse_args(args)
     
     logging.basicConfig(level = options.log_level)
@@ -58,6 +68,10 @@ def main(args=None):
 
     if options.rating:
         fm.change_rating(options.rating, options.safe_rating)
+    if options.tag:
+        fm.apply_tag(options.tag)
+    if options.untag:
+        fm.remove_tag(options.untag)
 
     # List photoset in stdout
     if options.list:
@@ -69,7 +83,9 @@ def main(args=None):
             print p.path
 
     if not any([options.list, 
-                options.rating]):
+                options.rating.
+                options.tag,
+                options.untag]):
         logger.warning(_("No action was specified."))
     return 0
 

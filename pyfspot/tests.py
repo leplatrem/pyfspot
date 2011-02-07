@@ -59,6 +59,24 @@ class TestPhoto(DataTestCase, unittest.TestCase):
         p = Photo(base_uri = "file:///Your%20photos/", filename = "file.jpg")
         self.assertFalse(p.exists())
 
+    def test_add_tag(self):
+        p = session.query(Photo).filter_by(filename='bee.jpg').one()
+        self.assertEqual(p.tags, [])
+        p.add_tag('Family')
+        self.assertEqual(p.tags, [session.query(Tag).filter_by(name='Family').one()])
+        self.assertEqual(p.tagnames, ['Family'])
+        p.add_tag('family')
+        self.assertEqual(len(p.tags), 1)
+
+    def test_remove_tag(self):
+        p = session.query(Photo).filter_by(filename='bee.jpg').one()
+        self.assertEqual(p.tagnames, [])
+        self.assertRaises(Exception, p.remove_tag, ('Landscape'))
+        p.add_tag('Landscape')
+        self.assertEqual(p.tagnames, ['Landscape'])
+        p.remove_tag('Landscape')
+        self.assertEqual(p.tagnames, [])
+
 
 class TestController(DataTestCase, unittest.TestCase):
     fixture = dbfixture
