@@ -92,6 +92,13 @@ LICENSE
 CHANGELOG
 =========
 
+0.2
+---
+* Ability to find missing photos on disk
+* Ability to add/remove tag from command-line
+* Fix encoding of paths in database
+* Fix command-line args
+
 0.1
 ---
 * Initial version. Basic wiring of code and logics. Does basic path and tag search.
