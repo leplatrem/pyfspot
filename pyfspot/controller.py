@@ -124,7 +124,7 @@ class FSpotController(object):
     def find_missing_on_disk(self):
         # Cannot use hybrid attributes yet.
         missing = [p.id for p in self.photoset if not p.exists()]
-        return self.photoset.filter(Photo.id.in_(missing))
+        return self.photoset.filter(Photo.id.in_(missing or [-1]))
 
     @backupdb()
     def apply_tag(self, tagname):
