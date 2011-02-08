@@ -30,6 +30,10 @@ def main(args=None):
     lookupgrp.add_option("--find-missing",
                       dest="find_missing", default=False, action="store_true",
                       help=_("Find photos missing on disk"))
+    lookupgrp.add_option("--find-corrupted",
+                      dest="find_corrupted", default=False, action="store_true",
+                      help=_("Find corrupted Jpeg photos"))
+
     # Actions
     actionsgrp = OptionGroup(parser, _("Actions"))
     actionsgrp.add_option("--list",
@@ -65,6 +69,8 @@ def main(args=None):
         fm.photoset = fm.find_by_tag(tagname)
     if options.find_missing:
         fm.photoset = fm.find_missing_on_disk()
+    if options.find_corrupted:
+        fm.photoset = fm.find_corrupted()
 
     if options.rating:
         fm.change_rating(options.rating, options.safe_rating)

@@ -50,6 +50,7 @@ USAGE
         --find-tag=FIND_TAG
                             Find by tag
         --find-missing      Find photos missing on disk
+        --find-corrupted    Find corrupted Jpeg photos
 
       Actions:
         --list              List photos matching set
@@ -74,6 +75,9 @@ Tag and rate all photos whose path contains "selecta":
 
 Remove tag on all photos which are missing on disk:
   f-spot-admin --find-missing --untag="Family"
+
+Move corrupted photos to a specific folder
+  f-spot-admin --find-corrupted --list | xargs -0 -I xxx mv xxx /tmp/trash
 
 
 =======

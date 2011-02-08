@@ -6,7 +6,7 @@ import time
 import urllib
 from gettext import gettext as _
 
-from models import NotFoundError, create_engine, metadata, session, Photo, Tag
+from models import NotFoundError, MissingBinaryError, create_engine, metadata, session, Photo, Tag
 
 
 DEFAULT_DB_FILE = os.path.join(os.path.expanduser('~'), '.config', 'f-spot', 'photos.db')
@@ -149,7 +149,13 @@ class FSpotController(object):
         raise NotImplementedError
 
     def find_corrupted(self):
-        raise NotImplementedError
+        corrupted = []
+        try:
+            corrupted = [p.id for p in self.photoset if p.is_corrupted()]
+        except MissingBinaryError, e:
+            logger.exception(e)
+            logger.info(_("Try installing with: sudo apt-get install %s") % e.cmd)
+        return self.photoset.filter(Photo.id.in_(corrupted or [-1]))
 
     def find_by_time(self):
         raise NotImplementedError

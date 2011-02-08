@@ -59,6 +59,14 @@ class TestPhoto(DataTestCase, unittest.TestCase):
         p = Photo(base_uri = "file:///Your%20photos/", filename = "file.jpg")
         self.assertFalse(p.exists())
 
+    def test_corrupted(self):
+        p = session.query(Photo).filter_by(filename='bee.jpg').one()
+        assert p
+        self.assertFalse(p.is_corrupted())
+        p = Photo(base_uri = os.path.join('file://', BASE_PATH, 'tests'),
+                  filename = 'bee-corrupted.jpg')
+        self.assertTrue(p.is_corrupted())
+
     def test_add_tag(self):
         p = session.query(Photo).filter_by(filename='bee.jpg').one()
         self.assertEqual(p.tags, [])

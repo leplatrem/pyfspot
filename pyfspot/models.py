@@ -33,7 +33,10 @@ class ExifTagError(Exception):
 
 class MissingBinaryError(Exception):
     """Raised when a binary is not found"""
-    pass
+    def __init__(self, cmd):
+        self.cmd = cmd
+        super(MissingBinaryError, self).__init__(self, _("Cannot execute '%s'.") % cmd)
+        
 
 
 class Roll(DeclarativeBase):
@@ -137,9 +140,9 @@ class Photo(DeclarativeBase):
     def is_corrupted(self):
         cmd = 'jpeginfo'
         if not which(cmd):
-            raise MissingBinaryError(_("'%s' could not be found") % cmd)
+            raise MissingBinaryError(cmd)
         code, stdout = commands.getstatusoutput('%s -c "%s"' % (cmd, self.path))
-        return code == 0 and "[OK]" not in stdout 
+        return "[OK]" not in stdout 
 
     def __unicode__(self):
         return u"<Photo('%s','%s')>" % (self.base_uri, self.filename)
