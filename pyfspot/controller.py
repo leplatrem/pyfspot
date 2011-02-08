@@ -149,10 +149,10 @@ class FSpotController(object):
         raise NotImplementedError
 
     def find_corrupted(self):
-        corrupted = []
         try:
             corrupted = [p.id for p in self.photoset if p.is_corrupted()]
         except MissingBinaryError, e:
+            corrupted = []
             logger.exception(e)
             logger.info(_("Try installing with: sudo apt-get install %s") % e.cmd)
         return self.photoset.filter(Photo.id.in_(corrupted or [-1]))
