@@ -102,11 +102,12 @@ class FSpotController(object):
                     self.create_backup()
                     for p in queryset:
                         # Compare encoded version of base_uri to actual version
-                        # (slice file:// part)
-                        base_uri_encoded = urllib.quote(p.base_uri[7:].encode('utf-8'))
-                        if base_uri_encoded != p.base_uri[7:]:
+                        base_uri_encoded = urllib.quote(p.base_uri[7:].encode('utf-8'))  # (slice file:// part)
+                        filename_encoded = urllib.quote(p.filename.encode('utf-8'))
+                        if base_uri_encoded != p.base_uri[7:] or \
+                           filename_encoded != p.filename:
+                            p.filename = filename_encoded
                             p.base_uri = p.base_uri[:7] + base_uri_encoded
-                            total += 1
                     session.commit()
                     logger.info(_("Normalized path encoding on %s photos.") % total)
             self.normalize = False

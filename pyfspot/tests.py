@@ -67,10 +67,25 @@ class TestPhoto(DataTestCase, unittest.TestCase):
     def test_path(self):
         p = Photo(base_uri = "file:///Your%20photos/", filename = "file.jpg")
         self.assertEqual(p.path, '/Your photos/file.jpg')
+        p = Photo(base_uri = "file:///Your%20photos/", filename = "fi le.jpg")
+        self.assertEqual(p.path, '/Your photos/fi le.jpg')
+        p = Photo(base_uri = "file:///Your%20photos/", filename = "fi%20le.jpg")
+        self.assertEqual(p.path, '/Your photos/fi le.jpg')
+        p = Photo(base_uri = "file:///Your photos/", filename = "fi%20le.jpg")
+        self.assertEqual(p.path, '/Your photos/fi le.jpg')
         p = Photo(base_uri = "file:///Your photos/", filename = "file.jpg")
         self.assertEqual(p.path, '/Your photos/file.jpg')
         p = Photo(base_uri = "file:///Your photos", filename = "file.jpg")
         self.assertEqual(p.path, '/Your photos/file.jpg')
+        
+        p = session.query(Photo).filter_by(description='encoded').one()
+        self.assertEqual(p.path, u'/éΩƂ/spa ce/file1.jpg'.encode('utf-8'))
+        p = session.query(Photo).filter_by(description='normalized').one()
+        self.assertEqual(p.path, u'/éΩƂ/spa ce/file2.jpg'.encode('utf-8'))
+        p = session.query(Photo).filter_by(description='file_encoded').one()
+        self.assertEqual(p.path, u'/Photos/2011/file3 éè with spaces.jpg'.encode('utf-8'))
+        p = session.query(Photo).filter_by(description='file_normalized').one()
+        self.assertEqual(p.path, u'/Photos/2011/file4 éè with spaces.jpg'.encode('utf-8'))
 
     def test_exists(self):
         p = session.query(Photo).filter_by(filename='bee.jpg').one()

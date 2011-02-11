@@ -110,11 +110,15 @@ class Photo(DeclarativeBase):
           becomes
             /photos/2011/11.01.09.Your photos/179.jpg
         """
-        base_uri = urllib.unquote(self.base_uri)
-        base_uri = base_uri.encode('utf-8')
+        base_uri = self.base_uri
+        if '%' in self.base_uri:
+            base_uri = urllib.unquote(self.base_uri)
+            base_uri = base_uri.encode('utf-8')
         base_uri = urlparse(base_uri)
-        filename = urllib.unquote(self.filename)
-        filename = filename.encode('latin-1')
+        filename = self.filename
+        if '%' in self.filename:
+            filename = urllib.unquote(self.filename)
+            filename = filename.encode('utf-8')
         return os.path.join(base_uri.path, filename)
 
     def exists(self):
