@@ -59,6 +59,8 @@ def main(args=None):
 
     # Start using the controller
     fm = FSpotController(dbpath=options.database)
+    logger.info(_("F-Spot version  : %s") % fm.fspot_version)
+    logger.debug(_("F-Spot database : %s") % fm.db_version)
 
     # Chain find queries
     if options.find_path:

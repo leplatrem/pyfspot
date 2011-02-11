@@ -4,7 +4,7 @@ import unittest
 
 from fixture import DataSet, DataTestCase, SQLAlchemyFixture
 
-from models import create_engine, metadata, session, Photo, Tag
+from models import create_engine, metadata, session, Photo, Tag, Meta
 from controller import FSpotController
 
 
@@ -20,22 +20,42 @@ BASE_PATH=os.path.abspath(os.path.dirname(__file__))
 """
 Fixtures
 """
-dbfixture = SQLAlchemyFixture(env={'PhotoData': Photo, 'TagData': Tag},
+dbfixture = SQLAlchemyFixture(env={'PhotoData': Photo, 
+                                   'TagData': Tag,
+                                   'MetaData': Meta},
                               engine=metadata.bind)
 
 class PhotoData(DataSet):
     class on_disk:
         base_uri = os.path.join('file://', BASE_PATH, 'tests')
         filename = 'bee.jpg'
+        description='on_disk'
     class encoded:
-        base_uri = os.path.join('file://', u'éΩƂ', 'spa ce')
+        base_uri = os.path.join('file://', u'/éΩƂ', 'spa ce')
         filename = 'file1.jpg'
+        description='encoded'
     class normalized:
-        base_uri = os.path.join('file://', '%C3%A9%CE%A9%C6%82', 'spa%20ce')
+        base_uri = os.path.join('file://', '/%C3%A9%CE%A9%C6%82', 'spa%20ce')
         filename = 'file2.jpg'
+        description='normalized'
     class file_encoded:
-        base_uri = os.path.join('file://', 'Photos', '2011')
+        base_uri = os.path.join('file://', '/Photos', '2011')
         filename = u"file3 éè with spaces.jpg"
+        description='file_encoded'
+    class file_normalized:
+        base_uri = os.path.join('file://', '/Photos', '2011')
+        filename = u"file4%20%C3%A9%C3%A8%20with%20spaces.jpg"
+        description='file_normalized'
+
+
+class MetaData(DataSet):
+    class fspot_version:
+        name = 'F-Spot Version'
+        data = '0.8.0'
+    class db_version:
+        name = 'F-Spot Database'
+        data = '18'
+        
 
 """
 Actual tests
@@ -88,7 +108,7 @@ class TestPhoto(DataTestCase, unittest.TestCase):
 
 class TestController(DataTestCase, unittest.TestCase):
     fixture = dbfixture
-    datasets = [PhotoData]
+    datasets = [PhotoData, MetaData]
 
     def setUp(self):
         super(TestController, self).setUp()
@@ -109,8 +129,8 @@ class TestController(DataTestCase, unittest.TestCase):
         self.assertTrue(len(p) > 0)
         p = self.fm.find_by_path('*tests/bee*').all()
         self.assertFalse(len(p) > 0)
-        p = self.fm.find_by_path('file*').all()
-        self.assertEqual(len(p), 3)
+        p = self.fm.find_by_path('*file*').all()
+        self.assertEqual(len(p), 4)
         p = self.fm.find_by_path('*file?.jpg').all()
         self.assertEqual(len(p), 2)
         p = self.fm.find_by_path('*spa ce*').all()

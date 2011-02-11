@@ -36,7 +36,14 @@ class MissingBinaryError(Exception):
     def __init__(self, cmd):
         self.cmd = cmd
         super(MissingBinaryError, self).__init__(self, _("Cannot execute '%s'.") % cmd)
-        
+
+
+class Meta(DeclarativeBase):
+    __tablename__ = 'meta'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    data = Column(String)
 
 
 class Roll(DeclarativeBase):
