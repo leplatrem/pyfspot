@@ -20,11 +20,15 @@ pyfspot requires:
 
 System-wide installation
 ------------------------
+$ sudo aptitude install python-setuptools
+$
 $ sudo python setup.py install
 
 
 Virtualenv installation
 -----------------------
+$ sudo aptitude install python-virtualenv
+$
 $ virtualenv env
 $ cd env
 $ source bin/activate
